@@ -3,8 +3,11 @@ import { Redirect } from 'react-router-dom';
 import { useAlert } from "react-alert";
 import './form.css';
 
+import {signin, authenticate} from './Api';
+
 function Login() {
     const [redirectToSignup, setRedirectToSignup] = useState(false);
+    const [redirectToHome, setRedirectToHome] = useState(false);
     const passwordRef = useRef();
     const [inputValues, setInputValues] = useState({
         email: "",
@@ -31,8 +34,17 @@ function Login() {
 
     const onSubmit = event => {
         event.preventDefault();
-        console.log("submit");
-        
+        signin({ email, password })
+            .then(data => {
+                if (data.error) {
+                    alert.error(data.error);
+                }
+                else {
+                    authenticate(data, () => {
+                        setRedirectToHome(true);
+                    });
+                }
+            })
     }
 
     const form = () => (
@@ -79,6 +91,10 @@ function Login() {
             {redirectToSignup &&
                 <Redirect to={{
                     pathname: "/signup"
+                }} />}
+            {redirectToHome &&
+                <Redirect to={{
+                    pathname: "/home"
                 }} />}
         </div>
     )
